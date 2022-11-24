@@ -5,19 +5,24 @@ import cv2 as cv
 FILE_PATH = f'<path_to_image>'
 OUTPUT_FILE_PATH = '//Dither_mod.png'
 
+#increase to downscale before dithering and upscale after
+SCALE_EXPONENT = 0
 
 def main():
     img = load_image(FILE_PATH)
     print('Image loaded!')
-    #scale the image between dithering
-    # img = scale(img)
+    # scale down the image before dithering
+    img = scale(img, -SCALE_EXPONENT)
+    #dither
     img = dither(img)
+    # scale up the image before dithering
+    img = scale(img, SCALE_EXPONENT)
     save_image(img)
     print('Image saved!')
 
-def scale(img, res :tuple[int,int]):
+def scale(img, scale_exponent=0):
     'scale image using nearest interpolation'
-    img = cv.resize(img, res, interpolation = cv.INTER_NEAREST )
+    img = cv.resize(img, (np.array(img.shape[:2])*(2**scale_exponent)).astype(int), interpolation = cv.INTER_NEAREST )
     return img
 
 def load_image(file_path):
