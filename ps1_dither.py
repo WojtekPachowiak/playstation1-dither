@@ -2,11 +2,11 @@ import numpy as np
 import cv2 as cv
 
 
-FILE_PATH = f'<path_to_image>'
-OUTPUT_FILE_PATH = '//Dither_mod.png'
+FILE_PATH = f'Przechwytywanie2.PNG'
+OUTPUT_FILE_PATH = 'Dither_mod.png'
 
 #increase to downscale before dithering and upscale after
-SCALE_EXPONENT = 0
+SCALE_EXPONENT = 2
 
 def main():
     img = load_image(FILE_PATH)
@@ -73,3 +73,5 @@ def dither(img):
     
 
 
+if __name__ == "__main__":
+    main()
