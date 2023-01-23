@@ -2,22 +2,25 @@ import numpy as np
 import cv2 as cv
 
 
-FILE_PATH = f'<path_to_image>'
-OUTPUT_FILE_PATH = '//Dither_mod.png'
-
+FILE_PATH = r'./morrigantest4_new.png'
+OUTPUT_FILE_PATH = './out.png'
+SCALE_EXPONENT = 2
 
 def main():
     img = load_image(FILE_PATH)
     print('Image loaded!')
-    #scale the image between dithering
-    # img = scale(img)
+    # scale down the image before dithering
+    img = scale(img, -SCALE_EXPONENT)
+    #dither
     img = dither(img)
+    # scale up the image before dithering
+    img = scale(img, SCALE_EXPONENT)
     save_image(img)
     print('Image saved!')
 
-def scale(img, res :tuple[int,int]):
+def scale(img, scale=0):
     'scale image using nearest interpolation'
-    img = cv.resize(img, res, interpolation = cv.INTER_NEAREST )
+    img = cv.resize(img, (np.array(img.shape[:2])*(2**scale)).astype(int), interpolation = cv.INTER_NEAREST )
     return img
 
 def load_image(file_path):
@@ -66,5 +69,6 @@ def dither(img):
 
     return img
     
-
+if __name__ == "__main__":
+    main()
 
