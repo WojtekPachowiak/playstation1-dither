@@ -2,8 +2,10 @@ import numpy as np
 import cv2 as cv
 
 
-FILE_PATH = r'./morrigantest4_new.png'
-OUTPUT_FILE_PATH = './out.png'
+FILE_PATH = f'Przechwytywanie2.PNG'
+OUTPUT_FILE_PATH = 'Dither_mod.png'
+
+#increase to downscale before dithering and upscale after
 SCALE_EXPONENT = 2
 
 def main():
@@ -18,9 +20,9 @@ def main():
     save_image(img)
     print('Image saved!')
 
-def scale(img, scale=0):
+def scale(img, scale_exponent=0):
     'scale image using nearest interpolation'
-    img = cv.resize(img, (np.array(img.shape[:2])*(2**scale)).astype(int), interpolation = cv.INTER_NEAREST )
+    img = cv.resize(img, (np.array(img.shape[:2])*(2**scale_exponent)).astype(int), interpolation = cv.INTER_NEAREST )
     return img
 
 def load_image(file_path):
@@ -72,3 +74,5 @@ def dither(img):
 if __name__ == "__main__":
     main()
 
+if __name__ == "__main__":
+    main()

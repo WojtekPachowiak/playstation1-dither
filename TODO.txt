@@ -1,0 +1,3 @@
+-create .glsl version for OpenGL (non-GLES) (easier t use modulo and variable indexing)
+- finish GLES version by implementing scaling up and down during during dithering process
+- create CLI for Python version
