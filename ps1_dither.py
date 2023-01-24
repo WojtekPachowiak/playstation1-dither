@@ -71,8 +71,6 @@ def dither(img):
 
     return img
     
-if __name__ == "__main__":
-    main()
-
+    
 if __name__ == "__main__":
     main()
