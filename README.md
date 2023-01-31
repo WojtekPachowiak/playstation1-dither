@@ -1,13 +1,13 @@
 # PlayStation 1 dithering ported to GLSL and Python
 
-## Inspiration
+# Inspiration
 The algorithm I'm using is based on HLSL code: https://gist.github.com/ompuco/3209f1b32213cec5b7bccf0e67caf3e9 \
 Its author: https://twitter.com/ompuco
 
 See also: https://twitter.com/jazzmickle/status/1269238990827335689 \
 (seemingly based on the same algorithm, but recreated in Unreal Engine)
 
-## Differences between the original
+# Differences between the original
 
 - The difference is that at one point I'm clamping color values between 0 and 255 to prevent overflow (I guess PS1 simply wasn't using values that could overflow as a result of dithering; or overflow was somehow prevented, idk).
 
