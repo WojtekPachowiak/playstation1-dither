@@ -1,4 +1,0 @@
-WIDTH, HEIGHT = 270//2,270//2
-NEAR, FAR = 0, 0
-SHADERS_PATH = "./"
-TEXTURES_PATH = "./textures/"

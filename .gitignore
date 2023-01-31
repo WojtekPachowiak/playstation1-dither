@@ -177,3 +177,5 @@ cython_debug/
 *.jpg
 *.JPEG
 *.JPG
+
+!example_images/*

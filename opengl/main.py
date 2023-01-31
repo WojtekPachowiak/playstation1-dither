@@ -1,95 +1,106 @@
 import os
 import pygame
 from OpenGL.GL import *
-from OpenGL.GL.shaders import compileProgram, compileShader
-from texture import load_texture_pygame, TEXTURE_WRAP, generate_framebuffer
-import glm
+from texture import load_texture
 import numpy as np
 from shader import Shader
-from constants import WIDTH, HEIGHT
-
-
-pygame.init()
-# pygame.display.gl_set_attribute(pygame.GL_STENCIL_SIZE, 8)
-pygame.display.set_mode((WIDTH, HEIGHT), pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE) # |pygame.FULLSCREEN
+import typer
+from pathlib import Path
 
 
 
-
-def add_screenquad():
-    '''add a quad that fills the entire screen'''
-    #buffer in Normalized Device Coordinates
-    vertices = np.array([ 
-        #positions   #texCoords
-        -1.0,  1.0,  0.0, 1.0,
-        -1.0, -1.0,  0.0, 0.0,
-         1.0, -1.0,  1.0, 0.0,
-
-        -1.0,  1.0,  0.0, 1.0,
-         1.0, -1.0,  1.0, 0.0,
-         1.0,  1.0,  1.0, 1.0
-    ],dtype=np.float32)
-    vao = glGenVertexArrays(1)
-    vbo = glGenBuffers(1)
-    glBindVertexArray(vao)
-    glBindBuffer(GL_ARRAY_BUFFER, vbo)
-    glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, ctypes.c_void_p(0));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, ctypes.c_void_p(8));
-    glBindVertexArray(0)
-    return vao
+def main(
+    input_file_path: str = typer.Argument(..., help="Path to input image"), 
+    output_file_path: str = typer.Argument(..., help="Path where resulting image will be output"), 
+    downscale_factor:int = typer.Argument(0, help="2's exponent determining how much to downscale (pixelate) the image in order to make the dithering more visible. Default is 0 which means no downscaling. WARNING! It doesn't change the reoslution of the output image."),
+    display: bool = typer.Option(True, help="Whether to display the dithered image in a window before saving it"),
+    dither: bool = typer.Option(True, help="Whether to dither the image or not")):
+    
+    assert downscale_factor >= 0, "downscale_factor must be a non-negative integer"
 
 
-texture_shader = Shader("ps1_dither")
+    WIDTH, HEIGHT = 1080,1080
 
-screenquad_vao = add_screenquad()
+    pygame.init()
+    pygame.display.set_mode((WIDTH, HEIGHT), pygame.OPENGL | pygame.DOUBLEBUF | pygame.RESIZABLE) # |pygame.FULLSCREEN
 
-textures = glGenTextures(5)
-load_texture_pygame("textures/example_img.png", textures[0])
+    def screenshot():
+        ''' save the current viewport image to a file '''
+        screen = pygame.display.get_surface()
+        size = screen.get_size()
+        buffer = glReadPixels(0, 0, *size, GL_RGBA, GL_UNSIGNED_BYTE)
+        screen_surf = pygame.image.fromstring(buffer, size, "RGBA", True)
+        pygame.image.save(screen_surf, output_file_path )
 
-projection = glm.ortho(-10.0, 10.0, -10.0, 10.0, 0.1, 10)
-view = glm.lookAt(glm.vec3([0.0, 0.0, 0.0]), glm.vec3([0.0, 0.0, -1.0]), glm.vec3([0.0, 1.0, 0.0]));
+    def add_screenquad():
+        '''add a quad that fills the entire screen'''
+        #buffer in Normalized Device Coordinates
+        vertices = np.array([ 
+            #positions   #texCoords
+            -1.0,  1.0,  0.0, 1.0,
+            -1.0, -1.0,  0.0, 0.0,
+            1.0, -1.0,  1.0, 0.0,
 
-def screenshot():
-    screen = pygame.display.get_surface()
-    size = screen.get_size()
-    buffer = glReadPixels(0, 0, *size, GL_RGBA, GL_UNSIGNED_BYTE)
-    screen_surf = pygame.image.fromstring(buffer, size, "RGBA", True)
-    pygame.image.save(screen_surf, "screenshot.png")
+            -1.0,  1.0,  0.0, 1.0,
+            1.0, -1.0,  1.0, 0.0,
+            1.0,  1.0,  1.0, 1.0
+        ],dtype=np.float32)
+        vao = glGenVertexArrays(1)
+        vbo = glGenBuffers(1)
+        glBindVertexArray(vao)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        glBufferData(GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL_STATIC_DRAW)
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, ctypes.c_void_p(0));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * vertices.itemsize, ctypes.c_void_p(8));
+        glBindVertexArray(0)
+        return vao
 
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif  event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+
+    shader = Shader("ps1_dither")
+    shader.use()
+    shader.set_float("u_downscale_factor", 2**downscale_factor)
+    shader.set_vec2("u_resolution", WIDTH, HEIGHT)
+    shader.set_int("u_dither", int(dither))
+
+
+
+    texture = load_texture(input_file_path)
+    screenquad_vao = add_screenquad()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 running = False
-            elif event.key == pygame.K_s:
-                screenshot()
+            elif  event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False                    
+            # if event.type == pygame.VIDEORESIZE:
+            #     WIDTH, HEIGHT = event.w, event.h
+            #     glViewport(0, 0, event.w, event.h)
+            
 
-        # if event.type == pygame.VIDEORESIZE:
-        #     # glViewport(0, 0, event.w, event.h)
-        #     projection = glm.perspective(45, event.w / event.h, 0.1, 100)
+        glClearColor(1.0, 0.0, 1.0, 1.0)
+        glClear(GL_COLOR_BUFFER_BIT)
         
-    ct = pygame.time.get_ticks() / 1000
+        shader.use()
+        shader.set_vec2("u_resolution", WIDTH, HEIGHT)
+        glBindVertexArray(screenquad_vao)
+        glBindTexture(GL_TEXTURE_2D, texture)
+        glDrawArrays(GL_TRIANGLES, 0, 6)
+        
 
-    texture_shader.use()
-    texture_shader.set_mat4fv("view", glm.value_ptr(view))
-    texture_shader.set_mat4fv("projection", glm.value_ptr(projection))
+        if display == False or running == False:  
+            running = False
+            #take a screenshot
+            screenshot()
+
+        pygame.display.flip()
+        
+    pygame.quit()
 
 
-    glClearColor(1.0, 0.0, 1.0, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
-    
-    texture_shader.use()
-    glBindVertexArray(screenquad_vao)
-    glBindTexture(GL_TEXTURE_2D, textures[0])
-    glDrawArrays(GL_TRIANGLES, 0, 6)
-    
-    pygame.display.flip()
-
-pygame.quit()
-
+if __name__ == "__main__":
+    typer.run(main)
