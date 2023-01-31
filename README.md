@@ -1,6 +1,5 @@
 # PlayStation 1 dithering ported to GLSL and Python
 
-
 ## Inspiration
 The algorithm I'm using is based on HLSL code: https://gist.github.com/ompuco/3209f1b32213cec5b7bccf0e67caf3e9 \
 Its author: https://twitter.com/ompuco
@@ -13,6 +12,19 @@ See also: https://twitter.com/jazzmickle/status/1269238990827335689 \
 - The difference is that at one point I'm clamping color values between 0 and 255 to prevent overflow (I guess PS1 simply wasn't using values that could overflow as a result of dithering; or overflow was somehow prevented, idk).
 
 - Also, I've added a not-realtime version in which I'm not using a shading language, but rather Python with `numpy` and `opencv`.
+
+# Dithered examples
+
+***(zoom in to clearly see the difference)***
+
+Dithering works on individual pixels, so it's most visible in lower resolutions. Therefore the example images were:
+- in Python version: downscaled, dithered and upscaled back.
+- in GLSL version: pixelated in fragment shader without changing image resolution.
+
+Original             |  Dithered
+:-------------------------:|:-------------------------:
+![DesertGiants_downscaled](https://user-images.githubusercontent.com/50328147/215885437-4faff45d-d266-4475-a03e-0248be271d3c.png) | ![imgg2](https://user-images.githubusercontent.com/50328147/215885339-f691669c-6039-4eb4-acde-c328b4475572.png)
+![UV_downscale](https://user-images.githubusercontent.com/50328147/215885470-f39a78c7-4466-4665-b3af-2bdb64fd1229.png) | ![imgg](https://user-images.githubusercontent.com/50328147/215885324-8d35b097-b2b9-4106-bf47-1655c12361b2.png)
 
 # Repository's file structure
 
@@ -41,30 +53,13 @@ See **help** for documentation:
 
 
 Concrete examples: 
-- `python ./opengl/main.py  example_images/DesertGiants.png ./ 3 --no-display` 
+- `python ./opengl/main.py  example_images/DesertGiants.png ./ 3 --no-display` \
 (uses GLSL; takes `DesertGiants.png` image, downscales the resolution 8 times (==2^3) and saves it in the CWD immediately without showing the output image to the user) 
-- `python ./opengl/main.py  example_images/DesertGiants.png ./ 3 --display` 
+- `python ./opengl/main.py  example_images/DesertGiants.png ./ 3 --display` \
 (uses GLSL; same as above, but the image is first displayed to the user; it is saved to CWD only after the display window is closed) 
-- `python ./python/main.py  example_images/UV.png C:/Users/someimg.png 1` 
+- `python ./python/main.py  example_images/UV.png C:/Users/someimg.png 1` \
 (uses Python; takes `UV.png` image, downscales the resolution 2 times (==2^1) and saves it as `C:/Users/someimg.png`) 
 
-
-# Dithered examples
-
-***(zoom in to clearly see the difference)***
-
-Dithering works on individual pixels, so it's most visible in lower resolutions. Therefore the example images were:
-- in Python version: downscaled, dithered and upscaled back.
-- in GLSL version: pixelated in fragment shader without changing image resolution.
-
-
-
-Original             |  Dithered
-:-------------------------:|:-------------------------:
-![out](https://user-images.githubusercontent.com/50328147/203868627-4068728c-d685-4b27-860d-79380f1ea1e0.png)  |  ![out_dithered3](https://user-images.githubusercontent.com/50328147/203868637-3dd832c3-993a-40a9-9591-2f64e6f290d4.png)
-![out](https://user-images.githubusercontent.com/50328147/203868902-ad6b3319-3f5e-429a-bb72-0964e5282c88.png)  |  ![out_dithered4](https://user-images.githubusercontent.com/50328147/203868899-8b0ff0ec-7ba8-47e6-8fd3-40383ecc8449.png)
-
-The images and models in them were made by me in Blender.
 
 
 # TODO (contributions welcome)
