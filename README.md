@@ -1,4 +1,4 @@
-# PS1 dithering ported to GLSL and Python
+# PlayStation 1 dithering ported to GLSL and Python
 
 
 ## Inspiration
