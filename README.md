@@ -1,4 +1,4 @@
-# PlayStation 1 dithering ported to GLSL and Python
+# PlayStation 1 dithering ported to GLSL (shader) and Python (offline processing)
 
 ### Inspiration
 The algorithm I'm using is based on HLSL code: https://gist.github.com/ompuco/3209f1b32213cec5b7bccf0e67caf3e9 \
@@ -17,18 +17,14 @@ See also: https://twitter.com/jazzmickle/status/1269238990827335689 \
 
 ***(zoom in to clearly see the difference)***
 
-Dithering works on individual pixels, so it's most visible in lower resolutions. Therefore the example images were:
-- in Python version: downscaled, dithered and upscaled back.
-- in GLSL version: pixelated in fragment shader without changing image resolution.
+Dithering works on individual pixels, so it's only visible in lower resolutions.
 
 Original             |  Dithered
 :-------------------------:|:-------------------------:
-![DesertGiants_downscaled](https://user-images.githubusercontent.com/50328147/215885437-4faff45d-d266-4475-a03e-0248be271d3c.png) | ![imgg2](https://user-images.githubusercontent.com/50328147/215885339-f691669c-6039-4eb4-acde-c328b4475572.png)
-![UV_downscale](https://user-images.githubusercontent.com/50328147/215885470-f39a78c7-4466-4665-b3af-2bdb64fd1229.png) | ![imgg](https://user-images.githubusercontent.com/50328147/215885324-8d35b097-b2b9-4106-bf47-1655c12361b2.png)
+![sh1nondith](./repo_images/sh1_nondithered.png) | ![sh1dith](./repo_images/sh1_dithered.png)
 
 # Repository's file structure
 
-- `example_images/` (example images you can use for testing the dithering)
 - `opengl/`
     - `main.py`, `shader.py`, `texture.py` (OpenGL boilerplate)
     - `ps1_dither.frag` (GLSL shader responsible for dithering)
@@ -53,12 +49,12 @@ See **help** for documentation:
 
 
 Concrete examples: 
-- `python ./opengl/main.py  example_images/DesertGiants.png ./ 3 --no-display` \
-(uses GLSL; takes `DesertGiants.png` image, downscales the resolution 8 times (==2^3) and saves it in the CWD immediately without showing the output image to the user) 
-- `python ./opengl/main.py  example_images/DesertGiants.png ./ 3 --display` \
+- `python ./opengl/main.py  YOUR_IMAGE.png ./ 3 --no-display` \
+(uses GLSL; takes `YOUR_IMAGE.png` image, downscales the resolution 8 times (==2^3) and saves it in the CWD immediately without showing the output image to the user) 
+- `python ./opengl/main.py  YOUR_IMAGE.png ./ 3 --display` \
 (uses GLSL; same as above, but the image is first displayed to the user; it is saved to CWD only after the display window is closed) 
-- `python ./python/main.py  example_images/UV.png C:/Users/someimg.png 1` \
-(uses Python; takes `UV.png` image, downscales the resolution 2 times (==2^1) and saves it as `C:/Users/someimg.png`) 
+- `python ./python/main.py  YOUR_IMAGE.png C:/Users/someimg.png 1` \
+(uses Python; takes `YOUR_IMAGE.png` image, downscales the resolution 2 times (==2^1) and saves it as `C:/Users/someimg.png`) 
 
 
 
